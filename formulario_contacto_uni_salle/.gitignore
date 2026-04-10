@@ -1,39 +1,30 @@
-# .gitignore
+# --- Ignorar archivos sensibles y de configuración ---
 
-# Archivos de sistema y editores
+# --- Entorno y Credenciales ---
+.env
+Config/config.local.php
+Config/db_credentials.php 
+
+# --- Archivos de Sistema y Editores ---
 .DS_Store
 Thumbs.db
-*.log
-*.tmp
-*.bak
 .vscode/
 .idea/
+*.log
 
-# Entorno local y credenciales sensibles
-config.local.php
-.env
+# --- Dependencias y Temporales ---
 vendor/
 node_modules/
-
-# Archivos generados o temporales
-*.cache
-*.min.js
-*.min.css
-build/
-dist/
-
-# XAMPP / PHP locales (no subas sesiones ni uploads temporales)
+*.tmp
+*.bak
 tmp/
 session/
 uploads/
 
-# Base de datos (no subas dumps con datos reales)
-*.sql.bak
-db_backup.sql
+# --- Base de Datos ---
+# Permite subir el schema.sql original, pero ignora backups con datos reales
+database/*.sql.bak
+database/dump_*.sql
 
-# Ignorar el archivo de configuración con credenciales reales
-# (usa config.example.php como plantilla)
-Config/Database.php  # ← Si pones credenciales reales aquí, ignóralo
-# Alternativa: mantén Database.php y crea .env (más profesional)
-
-# Fin
+# --- Pruebas locales ---
+pruebas/prueba_bd.php
