@@ -1,9 +1,9 @@
-# --- Ignorar archivos sensibles y de configuración ---
-
-# --- Entorno y Credenciales ---
+# --- Entorno y Credenciales (SEGURIDAD CRÍTICA) ---
+# Ignora el archivo real de credenciales en cualquier nivel de carpeta
+config.php
 .env
-Config/config.local.php
-Config/db_credentials.php 
+Config/config.php
+formulario_contacto_uni_salle/Config/config.php
 
 # --- Archivos de Sistema y Editores ---
 .DS_Store
@@ -22,7 +22,7 @@ session/
 uploads/
 
 # --- Base de Datos ---
-# Permite subir el schema.sql original, pero ignora backups con datos reales
+# Solo permitimos el esquema, no los datos reales
 database/*.sql.bak
 database/dump_*.sql
 
