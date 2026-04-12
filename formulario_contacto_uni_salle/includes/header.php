@@ -34,6 +34,10 @@
         .neon-green { text-shadow: 0 0 20px #00c853, 0 0 40px #00c853; }
         .card-dark { background: rgba(15, 15, 15, 0.95); backdrop-filter: blur(12px); }
         main { overflow-x: hidden; }
+        input, textarea, select {
+    color: #111111 !important;
+    background-color: #ffffff !important;
+}
     </style>
 </head>
 <body class="bg-lasalle-dark text-white antialiased">
