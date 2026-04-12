@@ -3,28 +3,43 @@
 ?>
     </main>
 
-    <!-- Footer -->
-    <footer class="bg-lasalle-blue text-white mt-auto">
-        <div class="container mx-auto px-6 py-8 text-center">
-            <p class="text-lg">&copy; <?php echo date("Y"); ?> Universidad La Salle</p>
-            <p class="mt-2 text-sm opacity-80">
-                Formulario de Contacto - Actividad Arquitectura de Software
-            </p>
-            <div class="mt-4 flex justify-center space-x-6">
-                <a href="#" class="hover:text-lasalle-gold transition-colors">
-                    <i class="fab fa-facebook-f text-xl"></i>
-                </a>
-                <a href="#" class="hover:text-lasalle-gold transition-colors">
-                    <i class="fab fa-instagram text-xl"></i>
-                </a>
-                <a href="#" class="hover:text-lasalle-gold transition-colors">
-                    <i class="fab fa-twitter text-xl"></i>
-                </a>
+    <!-- Footer Estilo Dark Premium -->
+    <footer class="bg-black border-t border-lasalle-green/10 py-12 mt-auto">
+        <div class="container mx-auto px-6">
+            <div class="flex flex-col md:flex-row justify-between items-center gap-6">
+                <!-- Branding -->
+                <div>
+                    <div class="flex items-center gap-3">
+                        <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-lasalle-green to-emerald-400 flex items-center justify-center">
+                            <i class="fas fa-university text-sm text-black"></i>
+                        </div>
+                        <p class="font-semibold text-lg text-white">Universidad La Salle</p>
+                    </div>
+                </div>
+                
+                <!-- Copyright & Info -->
+                <p class="text-gray-400 text-sm text-center md:text-left">
+                    &copy; <?php echo date("Y"); ?> Universidad La Salle • 
+                    <span class="block md:inline">Actividad Arquitectura de Software</span>
+                </p>
+
+                <!-- Social Links -->
+                <div class="flex gap-6 text-xl">
+                    <a href="#" class="text-gray-400 hover:text-lasalle-green transition-colors">
+                        <i class="fab fa-facebook-f"></i>
+                    </a>
+                    <a href="#" class="text-gray-400 hover:text-lasalle-green transition-colors">
+                        <i class="fab fa-instagram"></i>
+                    </a>
+                    <a href="#" class="text-gray-400 hover:text-lasalle-green transition-colors">
+                        <i class="fab fa-twitter"></i>
+                    </a>
+                </div>
             </div>
         </div>
     </footer>
 
-    <!-- Script.js (cárgalo al final para mejor rendimiento) -->
-    <script src="../js/script.js" defer></script>
+    <!-- Script.js (Ruta corregida para archivos en raíz) -->
+    <script src="js/script.js" defer></script>
 </body>
 </html>

@@ -1,3 +1,4 @@
+// solucion de conexion entre Database.php, ContactRepository.php y 
 <?php
 
 declare(strict_types=1);

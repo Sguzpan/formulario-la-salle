@@ -77,4 +77,29 @@ document.addEventListener('DOMContentLoaded', function () {
             alert('Por favor corrige los errores en el formulario.');
         }
     });
+    // CAMBIO: Contador de caracteres en tiempo real para el mensaje
+const mensajeInput = inputs.mensaje;
+const charCounter = document.getElementById('char-counter');
+const charHint = document.getElementById('char-hint');
+
+if (mensajeInput && charCounter) {
+    mensajeInput.addEventListener('input', function () {
+        const len = mensajeInput.value.length;
+        charCounter.textContent = len + ' caracteres';
+
+        if (len === 0) {
+            charHint.textContent = 'Mínimo 10 caracteres';
+            charHint.className = 'text-sm text-red-500';
+            charCounter.className = 'text-sm text-gray-400';
+        } else if (len < 10) {
+            charHint.textContent = 'Faltan ' + (10 - len) + ' caracteres';
+            charHint.className = 'text-sm text-red-500';
+            charCounter.className = 'text-sm text-red-400';
+        } else {
+            charHint.textContent = '✓ Longitud correcta';
+            charHint.className = 'text-sm text-green-600';
+            charCounter.className = 'text-sm text-green-600';
+        }
+    });
+}
 });
