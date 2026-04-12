@@ -2,40 +2,46 @@
 
 declare(strict_types=1);
 
-// Cargar dependencias (ajusta las rutas según tu estructura)
+// Cargar dependencias
 require_once __DIR__ . '/Config/Database.php';
 require_once __DIR__ . '/Models/Contact.php';
 require_once __DIR__ . '/Factories/ContactFactory.php';
 require_once __DIR__ . '/Repositories/ContactRepository.php';
-require_once __DIR__ . '/includes/header.php';  // Para mostrar la página con header y footer
+require_once __DIR__ . '/includes/header.php';
 
-// Solo procesamos si es un POST (envío del formulario)
+// IMPORTANTE: usar el namespace correcto
+use Config\Database;
+
+// Solo procesamos si es un POST
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     try {
-        // 1. Crear el objeto Contact validado desde los datos del formulario
+        // 1. Crear el objeto Contact validado
         $contact = ContactFactory::createFromPost($_POST);
 
-        // 2. Guardar en la base de datos usando el Repository
-        $repository = new ContactRepository();
+        // 2. Obtener conexión correctamente (Singleton)
+        $pdo = Database::getInstance()->getConnection();
+
+        // 3. Crear el repository con la conexión
+        $repository = new ContactRepository($pdo);
+
+        // 4. Guardar en la base de datos
         $success = $repository->save($contact);
 
         if ($success) {
-            // Mensaje de éxito + datos guardados (para feedback al usuario)
             $mensajeExito = "¡Mensaje enviado correctamente!";
             $detalleExito = "ID: " . $contact->getId() . " | Fecha: " . $contact->getFecha();
         } else {
             $error = "Hubo un problema al guardar el mensaje. Intenta de nuevo.";
         }
+
     } catch (InvalidArgumentException $e) {
-        // Errores de validación del Factory
         $error = $e->getMessage();
+
     } catch (Exception $e) {
-        // Otros errores (BD, conexión, etc.)
         $error = "Error inesperado: " . $e->getMessage();
     }
 }
 
-// Mostrar la página con el resultado (éxito o error)
 ?>
 
 <main class="container">
@@ -47,6 +53,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 <p><?php echo htmlspecialchars($detalleExito); ?></p>
                 <a href="formulario.php" class="btn">Volver al formulario</a>
             </div>
+
         <?php elseif (isset($error)): ?>
             <div class="alert error">
                 <h2>Error</h2>
