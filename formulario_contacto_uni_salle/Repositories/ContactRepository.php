@@ -1,30 +1,17 @@
 <?php
-
 declare(strict_types=1);
 
-// Eliminamos el require de Database, ya que la conexión vendrá de afuera
 require_once __DIR__ . '/../Models/Contact.php';
 
-/**
- * Repositorio para la entidad Contact
- * Aplicamos Inyección de Dependencias para mejorar la testabilidad y seguridad
- */
 class ContactRepository
 {
     private PDO $pdo;
 
-    /**
-     * Ahora el constructor recibe la conexión PDO.
-     * Esto desacopla el Repositorio de la clase Database.
-     */
     public function __construct(PDO $pdo)
     {
         $this->pdo = $pdo;
     }
 
-    /**
-     * Guarda un nuevo contacto utilizando sentencias preparadas (Protección SQL Injection)
-     */
     public function save(Contact $contact): bool
     {
         $sql = "INSERT INTO contactos (nombre, email, asunto, mensaje)
@@ -33,71 +20,66 @@ class ContactRepository
         try {
             $stmt = $this->pdo->prepare($sql);
             $success = $stmt->execute([
-                ':nombre'  => htmlspecialchars($contact->getNombre()), // Protección XSS básica
+                ':nombre'  => $contact->getNombre(),
                 ':email'   => $contact->getEmail(),
-                ':asunto'  => htmlspecialchars($contact->getAsunto()),
-                ':mensaje' => htmlspecialchars($contact->getMensaje()),
+                ':asunto'  => $contact->getAsunto(),
+                ':mensaje' => $contact->getMensaje(),
             ]);
 
             if ($success) {
-                $id = (int) $this->pdo->lastInsertId();
+                $id = (int)$this->pdo->lastInsertId();
                 $contact->setId($id);
-                
-                // Optimizamos: solo pedimos la fecha si realmente la necesitamos
+
                 $stmtFecha = $this->pdo->prepare("SELECT fecha FROM contactos WHERE id = ?");
                 $stmtFecha->execute([$id]);
                 $contact->setFecha($stmtFecha->fetchColumn());
             }
-
             return $success;
         } catch (PDOException $e) {
-            error_log("Error en ContactRepository::save -> " . $e->getMessage());
+            error_log("Error guardando contacto: " . $e->getMessage());
             return false;
         }
     }
 
-    public function findById(int $id): ?Contact
-    {
-        $stmt = $this->pdo->prepare("SELECT * FROM contactos WHERE id = :id");
-        $stmt->execute([':id' => $id]);
-        $row = $stmt->fetch();
-
-        if (!$row) return null;
-
-        return $this->mapRowToContact($row);
+   public function findAll(): array
+{
+    $sql = "SELECT id, nombre, email, asunto, mensaje, 
+                   DATE_FORMAT(fecha, '%d/%m/%Y %H:%i') as fecha
+            FROM contactos ORDER BY fecha DESC";
+    
+    $stmt = $this->pdo->query($sql); // usa query() en vez de prepare+execute
+    
+    if (!$stmt) {
+        error_log("Error en findAll: " . implode(' | ', $this->pdo->errorInfo()));
+        return [];
     }
-
-    public function findAll(): array
-    {
-        $stmt = $this->pdo->query("SELECT * FROM contactos ORDER BY fecha DESC");
-        $contacts = [];
-
-        while ($row = $stmt->fetch()) {
+    
+    $contacts = [];
+    while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+        try {
             $contacts[] = $this->mapRowToContact($row);
+        } catch (Exception $e) {
+            error_log("Error mapeando contacto: " . $e->getMessage());
         }
-
-        return $contacts;
     }
+    return $contacts;
+}
 
     private function mapRowToContact(array $row): Contact
     {
         $contact = new Contact(
-            $row['nombre'],
-            $row['email'],
-            $row['asunto'],
-            $row['mensaje']
+            $row['nombre'] ?? '',
+            $row['email'] ?? '',
+            $row['asunto'] ?? '',
+            $row['mensaje'] ?? ''
         );
-        $contact->setId((int) $row['id']);
-        $contact->setFecha($row['fecha']);
-        if ((int)$row['leido'] === 1) {
+
+        if (isset($row['id'])) $contact->setId((int)$row['id']);
+        if (isset($row['fecha'])) $contact->setFecha((string)$row['fecha']);
+        if (isset($row['leido']) && (int)$row['leido'] === 1) {
             $contact->markAsRead();
         }
-        return $contact;
-    }
 
-    public function markAsRead(int $id): bool
-    {
-        $stmt = $this->pdo->prepare("UPDATE contactos SET leido = 1 WHERE id = :id");
-        return $stmt->execute([':id' => $id]);
+        return $contact;
     }
 }
