@@ -96,6 +96,10 @@ $success = $_GET['success'] ?? '';
                     class="w-full px-5 py-4 border border-gray-300 rounded-xl focus:ring-2 focus:ring-lasalle-blue focus:border-lasalle-blue outline-none transition-all duration-200 shadow-sm hover:shadow resize-y"
                     placeholder="Escribe aquí tu mensaje en detalle..."
                 ></textarea>
+                <div class="flex justify-between items-center mt-2">
+                    <span id="char-hint" class="text-sm text-red-500">Mínimo 10 caracteres</span>
+                    <span id="char-counter" class="text-sm text-gray-400">0 caracteres</span>
+                </div>
             </div>
 
             <!-- Botón Enviar -->
