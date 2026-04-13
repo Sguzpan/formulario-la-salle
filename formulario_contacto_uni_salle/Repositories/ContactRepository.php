@@ -45,9 +45,9 @@ class ContactRepository
 {
     $sql = "SELECT id, nombre, email, asunto, mensaje, 
                    DATE_FORMAT(fecha, '%d/%m/%Y %H:%i') as fecha
-            FROM contactos ORDER BY fecha DESC";
+            FROM contactos ORDER BY id ASC";
     
-    $stmt = $this->pdo->query($sql); // usa query() en vez de prepare+execute
+    $stmt = $this->pdo->query($sql);
     
     if (!$stmt) {
         error_log("Error en findAll: " . implode(' | ', $this->pdo->errorInfo()));

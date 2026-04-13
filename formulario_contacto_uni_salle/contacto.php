@@ -1,68 +1,132 @@
-// solucion de conexion entre Database.php, ContactRepository.php y 
 <?php
-
 declare(strict_types=1);
 
-// Cargar dependencias
 require_once __DIR__ . '/Config/Database.php';
 require_once __DIR__ . '/Models/Contact.php';
 require_once __DIR__ . '/Factories/ContactFactory.php';
 require_once __DIR__ . '/Repositories/ContactRepository.php';
-require_once __DIR__ . '/includes/header.php';
 
-// IMPORTANTE: usar el namespace correcto
-use Config\Database;
-
-// Solo procesamos si es un POST
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    try {
-        // 1. Crear el objeto Contact validado
-        $contact = ContactFactory::createFromPost($_POST);
-
-        // 2. Obtener conexión correctamente (Singleton)
-        $pdo = Database::getInstance()->getConnection();
-
-        // 3. Crear el repository con la conexión
-        $repository = new ContactRepository($pdo);
-
-        // 4. Guardar en la base de datos
-        $success = $repository->save($contact);
-
-        if ($success) {
-            $mensajeExito = "¡Mensaje enviado correctamente!";
-            $detalleExito = "ID: " . $contact->getId() . " | Fecha: " . $contact->getFecha();
-        } else {
-            $error = "Hubo un problema al guardar el mensaje. Intenta de nuevo.";
-        }
-
-    } catch (InvalidArgumentException $e) {
-        $error = $e->getMessage();
-
-    } catch (Exception $e) {
-        $error = "Error inesperado: " . $e->getMessage();
-    }
+// ── Conexión ──────────────────────────────────────────────
+try {
+    $pdo        = \Config\Database::getInstance()->getConnection();
+    $repository = new ContactRepository($pdo);
+} catch (Exception $e) {
+    die('Error de conexión: ' . htmlspecialchars($e->getMessage()));
 }
 
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    try {
+        $contact = ContactFactory::createFromPost($_POST);
+        if ($repository->save($contact)) {
+            header('Location: formulario.php?success=1');
+        } else {
+            header('Location: formulario.php?error=' . urlencode('No se pudo guardar el mensaje.'));
+        }
+    } catch (Exception $e) {
+        header('Location: formulario.php?error=' . urlencode($e->getMessage()));
+    }
+    exit; 
+}
+
+// ── Modo admin: verificar ANTES de cargar la vista ───────
+$modo_admin = isset($_GET['admin']) && $_GET['admin'] === 'salle_pro_2024';
+
+if (!$modo_admin) {
+    header('Location: index.php');
+    exit;
+}
+
+// ── Cargar datos ──────────────────────────────────────────
+try {
+    $contactos = $repository->findAll();
+} catch (Exception $e) {
+    $contactos   = [];
+    $errorAdmin  = $e->getMessage();
+}
+
+require_once __DIR__ . '/includes/header.php';
 ?>
 
-<main class="container">
-    <section class="resultado">
-        <?php if (isset($mensajeExito)): ?>
-            <div class="alert success">
-                <h2>¡Éxito!</h2>
-                <p><?php echo htmlspecialchars($mensajeExito); ?></p>
-                <p><?php echo htmlspecialchars($detalleExito); ?></p>
-                <a href="formulario.php" class="btn">Volver al formulario</a>
-            </div>
+<div class="min-h-screen bg-lasalle-dark py-12">
+    <div class="max-w-7xl mx-auto px-6">
 
-        <?php elseif (isset($error)): ?>
-            <div class="alert error">
-                <h2>Error</h2>
-                <p><?php echo htmlspecialchars($error); ?></p>
-                <a href="formulario.php" class="btn">Volver e intentar de nuevo</a>
+        <div class="mb-10 flex justify-between items-end">
+            <div>
+                <h2 class="text-5xl font-black text-white">
+                    Panel de <span class="text-lasalle-green neon-green">Registros</span>
+                </h2>
+                <p class="text-gray-400 mt-2">
+                    Total: <span class="font-semibold text-lasalle-green">
+                        <?php echo count($contactos); ?>
+                    </span> contactos
+                </p>
+            </div>
+            <a href="index.php" class="text-gray-400 hover:text-lasalle-green flex items-center gap-2">
+                <i class="fas fa-home"></i> Volver
+            </a>
+        </div>
+
+        <?php if (isset($errorAdmin)): ?>
+            <div class="bg-red-900/30 border border-red-500 text-red-300 p-6 rounded-2xl mb-8">
+                Error al cargar registros: <?php echo htmlspecialchars($errorAdmin); ?>
             </div>
         <?php endif; ?>
-    </section>
-</main>
+
+        <div class="bg-zinc-950 border border-white/10 rounded-3xl overflow-hidden">
+            <table class="w-full">
+                <thead>
+                    <tr class="bg-black border-b border-lasalle-green/30">
+                        <th class="p-6 text-left text-lasalle-green text-sm uppercase">ID</th>
+                        <th class="p-6 text-left text-lasalle-green text-sm uppercase">Nombre</th>
+                        <th class="p-6 text-left text-lasalle-green text-sm uppercase">Email</th>
+                        <th class="p-6 text-left text-lasalle-green text-sm uppercase">Asunto</th>
+                        <th class="p-6 text-left text-lasalle-green text-sm uppercase">Mensaje</th>
+                        <th class="p-6 text-left text-lasalle-green text-sm uppercase">Fecha</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-white/10 text-gray-200">
+                    <?php if (empty($contactos)): ?>
+                        <tr>
+                            <td colspan="6" class="p-20 text-center text-gray-500">
+                                Aún no hay registros.
+                            </td>
+                        </tr>
+                    <?php else: ?>
+                        <?php foreach ($contactos as $c): ?>
+                            <tr class="hover:bg-white/5 transition-colors">
+                                <td class="p-6 font-mono text-lasalle-green">
+                                    #<?php echo htmlspecialchars((string)($c->getId() ?? 0)); ?>
+                                </td>
+                                <td class="p-6 font-medium text-white">
+                                    <?php echo htmlspecialchars($c->getNombre()); ?>
+                                </td>
+                                <td class="p-6 text-emerald-300">
+                                    <?php echo htmlspecialchars($c->getEmail()); ?>
+                                </td>
+                                <td class="p-6 text-gray-300">
+                                    <?php echo htmlspecialchars($c->getAsunto()); ?>
+                                </td>
+                                <td class="p-6 max-w-md text-gray-400">
+                                    <?php
+                                        $msg = $c->getMensaje();
+                                        echo htmlspecialchars(
+                                            mb_strlen($msg) > 120
+                                                ? mb_substr($msg, 0, 120) . '...'
+                                                : $msg
+                                        );
+                                    ?>
+                                </td>
+                                <td class="p-6 text-sm text-gray-500">
+                                    <?php echo htmlspecialchars($c->getFecha() ?? '—'); ?>
+                                </td>
+                            </tr>
+                        <?php endforeach; ?>
+                    <?php endif; ?>
+                </tbody>
+            </table>
+        </div>
+
+    </div>
+</div>
 
 <?php require_once __DIR__ . '/includes/footer.php'; ?>

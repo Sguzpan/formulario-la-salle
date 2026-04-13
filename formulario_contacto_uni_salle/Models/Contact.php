@@ -11,9 +11,9 @@ class Contact
     private ?string $fecha = null;
     private int $leido = 0;
 
-    /**
-     * Constructor - Compatible con formulario y recuperación desde BD
-     */
+    
+     // Constructor - Compatible con formulario y recuperación desde BD
+
     public function __construct(
         string $nombre = '',
         string $email = '',
@@ -37,7 +37,7 @@ class Contact
     // Setters usados por el Repository
     public function setId(int $id): void
 {
-    $this->id = $id; // Quita la restricción, el Repository es quien controla esto
+    $this->id = $id; 
 }
 
     public function setFecha(string $fecha): void

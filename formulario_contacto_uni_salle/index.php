@@ -1,5 +1,4 @@
 <?php
-// Asegúrate de que este archivo esté en la raíz de htdocs
 require_once 'includes/header.php';
 ?>
 

@@ -11,9 +11,9 @@ class Database {
     private static ?self $instance = null;
     private ?PDO $connection = null;
 
-    /**
-     * Constructor privado - Singleton Pattern
-     */
+   
+     //Constructor privado - Singleton Pattern
+    
     private function __construct() {
         $dsn = "mysql:host=" . DB_HOST . ";dbname=" . DB_NAME . ";charset=utf8mb4";
 

@@ -96,8 +96,8 @@ $success = $_GET['success'] ?? '';
                     placeholder="Escribe aquí tu mensaje en detalle..."
                 ></textarea>
                 <div class="flex justify-between items-center mt-2">
-                    <span id="char-hint" class="text-sm text-red-400">Mínimo 10 caracteres</span>
-                    <span id="char-counter" class="text-sm text-gray-500">0 caracteres</span>
+                    <span id="char-hint" class="text-sm text-red-500">Mínimo 10 caracteres</span>
+                    <span id="char-counter" class="text-sm text-gray-400">0 caracteres</span>
                 </div>
             </div>
 
